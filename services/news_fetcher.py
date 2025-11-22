@@ -7,7 +7,6 @@ load_dotenv()
 
 NEWSAPI_KEY = os.getenv("NEWSAPI_KEY")
 ALPHAVANTAGE_KEY = os.getenv("ALPHAVANTAGE_KEY")
-FMP_KEY = os.getenv("FMP_KEY")
 
 def fetch_tech_news(limit=5):
     """Fetch top tech news from NewsAPI."""
@@ -26,23 +25,24 @@ def fetch_tech_news(limit=5):
         
         articles = []
         for article in data.get("articles", [])[:limit]:
-            articles.append({
-                "title": article.get("title", "No title"),
-                "url": article.get("url", "")
-            })
+            if article.get("title") and article.get("title") != "[Removed]":
+                articles.append({
+                    "title": article.get("title", "No title"),
+                    "url": article.get("url", "")
+                })
         return articles
     except Exception as e:
         print(f"Error fetching tech news: {e}")
         return []
 
 def fetch_financial_news(limit=5):
-    """Fetch financial/economic news from Alpha Vantage."""
-    url = "https://www.alphavantage.co/query"
+    """Fetch business/financial news from NewsAPI."""
+    url = "https://newsapi.org/v2/top-headlines"
     params = {
-        "function": "NEWS_SENTIMENT",
-        "topics": "economy_fiscal,economy_monetary,financial_markets",
-        "limit": limit,
-        "apikey": ALPHAVANTAGE_KEY
+        "category": "business",
+        "country": "us",
+        "pageSize": limit,
+        "apiKey": NEWSAPI_KEY
     }
     
     try:
@@ -51,22 +51,26 @@ def fetch_financial_news(limit=5):
         data = response.json()
         
         articles = []
-        for item in data.get("feed", [])[:limit]:
-            articles.append({
-                "title": item.get("title", "No title"),
-                "url": item.get("url", "")
-            })
+        for article in data.get("articles", [])[:limit]:
+            if article.get("title") and article.get("title") != "[Removed]":
+                articles.append({
+                    "title": article.get("title", "No title"),
+                    "url": article.get("url", "")
+                })
         return articles
     except Exception as e:
         print(f"Error fetching financial news: {e}")
         return []
 
 def fetch_stock_news(limit=5):
-    """Fetch stock market news from Financial Modeling Prep."""
-    url = "https://financialmodelingprep.com/api/v3/stock_news"
+    """Fetch stock market related news using search."""
+    url = "https://newsapi.org/v2/everything"
     params = {
-        "limit": limit,
-        "apikey": FMP_KEY
+        "q": "stock market OR earnings OR fed OR inflation",
+        "language": "en",
+        "sortBy": "publishedAt",
+        "pageSize": limit,
+        "apiKey": NEWSAPI_KEY
     }
     
     try:
@@ -75,12 +79,12 @@ def fetch_stock_news(limit=5):
         data = response.json()
         
         articles = []
-        for item in data[:limit]:
-            articles.append({
-                "title": item.get("title", "No title"),
-                "url": item.get("url", ""),
-                "symbol": item.get("symbol", "")
-            })
+        for article in data.get("articles", [])[:limit]:
+            if article.get("title") and article.get("title") != "[Removed]":
+                articles.append({
+                    "title": article.get("title", "No title"),
+                    "url": article.get("url", "")
+                })
         return articles
     except Exception as e:
         print(f"Error fetching stock news: {e}")
