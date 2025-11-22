@@ -4,34 +4,33 @@ def format_digest(news_data):
     """Format news data into a nice Telegram message."""
     today = datetime.now().strftime("%b %d, %Y")
     
-    message = f"📰 **Daily News Digest** - {today}\n\n"
+    message = f"📰 *Daily News Digest*\n{today}\n\n"
     
     # Tech News
     if news_data.get("tech"):
-        message += "🔧 **TECH NEWS**\n"
-        for article in news_data["tech"]:
-            title = article["title"][:80] + "..." if len(article["title"]) > 80 else article["title"]
-            message += f"• [{title}]({article['url']})\n"
-        message += "\n"
+        message += "🔧 *TECH NEWS*\n\n"
+        for i, article in enumerate(news_data["tech"], 1):
+            title = article["title"][:100] + "..." if len(article["title"]) > 100 else article["title"]
+            message += f"{i}\\. [{title}]({article['url']})\n\n"
+        message += "━━━━━━━━━━━━━━━\n\n"
     
     # Financial News
     if news_data.get("financial"):
-        message += "💰 **FINANCIAL & ECONOMIC NEWS**\n"
-        for article in news_data["financial"]:
-            title = article["title"][:80] + "..." if len(article["title"]) > 80 else article["title"]
-            message += f"• [{title}]({article['url']})\n"
-        message += "\n"
+        message += "💰 *FINANCIAL & ECONOMIC NEWS*\n\n"
+        for i, article in enumerate(news_data["financial"], 1):
+            title = article["title"][:100] + "..." if len(article["title"]) > 100 else article["title"]
+            message += f"{i}\\. [{title}]({article['url']})\n\n"
+        message += "━━━━━━━━━━━━━━━\n\n"
     
     # Stock News
     if news_data.get("stock"):
-        message += "📈 **STOCK MARKET NEWS**\n"
-        for article in news_data["stock"]:
-            title = article["title"][:80] + "..." if len(article["title"]) > 80 else article["title"]
-            symbol = f" ({article.get('symbol', '')})" if article.get('symbol') else ""
-            message += f"• [{title}]({article['url']}){symbol}\n"
-        message += "\n"
+        message += "📈 *STOCK MARKET NEWS*\n\n"
+        for i, article in enumerate(news_data["stock"], 1):
+            title = article["title"][:100] + "..." if len(article["title"]) > 100 else article["title"]
+            message += f"{i}\\. [{title}]({article['url']})\n\n"
+        message += "━━━━━━━━━━━━━━━\n\n"
     
-    message += "_Powered by NewsAPI, Alpha Vantage, FMP_"
+    message += "_Powered by NewsAPI_"
     
     return message
 
