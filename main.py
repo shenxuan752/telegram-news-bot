@@ -15,7 +15,7 @@ async def startup_event():
     """Start the scheduler on startup."""
     asyncio.create_task(scheduler_loop())
 
-@app.get("/")
+@app.api_route("/", methods=["GET", "HEAD"])
 async def health_check():
     """Health check endpoint."""
     return JSONResponse(content={"status": "ok", "message": "News Bot is running"})
