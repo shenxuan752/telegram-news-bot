@@ -1,6 +1,7 @@
 import asyncio
 import os
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
+import pytz
 from dotenv import load_dotenv
 from telegram import Bot
 from services.news_fetcher import fetch_all_news
@@ -38,20 +39,25 @@ async def send_digest():
         print(f"[{datetime.now()}] Error sending digest: {e}")
 
 async def scheduler_loop():
-    """Run daily at specified time."""
-    print(f"Scheduler started. Digest will be sent daily at {DIGEST_TIME}")
+    """Run daily at specified time in NY timezone."""
+    tz = pytz.timezone("America/New_York")
+    print(f"Scheduler started. Digest will be sent daily at {DIGEST_TIME} {tz.zone}")
     
     target_hour, target_minute = map(int, DIGEST_TIME.split(":"))
     
     while True:
-        now = datetime.now()
+        # Get current time in NY
+        now = datetime.now(tz)
+        
+        # Create target time for today in NY
         target_time = now.replace(hour=target_hour, minute=target_minute, second=0, microsecond=0)
         
         # If target time has passed today, schedule for tomorrow
         if now >= target_time:
-            target_time = target_time.replace(day=now.day + 1)
+            target_time = target_time + timedelta(days=1)
         
         # Calculate seconds until next digest
+        # Both datetimes are timezone-aware, so subtraction works correctly
         wait_seconds = (target_time - now).total_seconds()
         
         print(f"[{now}] Next digest at {target_time} (in {wait_seconds/3600:.1f} hours)")
