@@ -1,7 +1,10 @@
 import asyncio
 import os
 from datetime import datetime, time, timedelta
-import pytz
+try:
+    from zoneinfo import ZoneInfo
+except ImportError:
+    from backports.zoneinfo import ZoneInfo  # Fallback for Python < 3.9
 from dotenv import load_dotenv
 from telegram import Bot
 from services.news_fetcher import fetch_all_news
@@ -40,8 +43,15 @@ async def send_digest():
 
 async def scheduler_loop():
     """Run daily at specified time in NY timezone."""
-    tz = pytz.timezone("America/New_York")
-    print(f"Scheduler started. Digest will be sent daily at {DIGEST_TIME} {tz.zone}")
+    try:
+        tz = ZoneInfo("America/New_York")
+    except Exception as e:
+        print(f"Error loading timezone: {e}")
+        # Fallback to UTC if timezone fails, but log it
+        from datetime import timezone
+        tz = timezone.utc
+        
+    print(f"Scheduler started. Digest will be sent daily at {DIGEST_TIME} {tz}")
     
     target_hour, target_minute = map(int, DIGEST_TIME.split(":"))
     
